@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
+from attention import *
 
 WINDOW_SIZE = 20
 THRESHOLD = 100
@@ -40,11 +41,14 @@ def split(data):
 X_train, y_train = split(train)
 X_test, y_test = split(test)
 
-model = tf.keras.Sequential([
-        layers.Dense(2, activation="relu", name="layer1"),
-        layers.Dense(3, activation="relu", name="layer2"),
-        layers.Dense(2, name="layer3"),
-    ])
+model = create_attn_model(X_train.shape, 0.01)
+
+
+# model = tf.keras.Sequential([
+#         layers.Dense(2, activation="relu", name="layer1"),
+#         layers.Dense(3, activation="relu", name="layer2"),
+#         layers.Dense(2, name="layer3"),
+#     ])
 
 
 model.compile(
@@ -60,6 +64,6 @@ model.fit(
     epochs=2
 )
 
-model.summary()
+# model.summary()
 
-print("test acc: ", model.evaluate(X_test, y_test, batch_size=128)[1])
+# print("test acc: ", model.evaluate(X_test, y_test, batch_size=128)[1])

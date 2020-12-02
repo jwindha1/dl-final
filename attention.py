@@ -18,26 +18,14 @@ from keras import Model
 from keras import backend as K
 
 
-K.tensorflow_backend._get_available_gpus()
-
 class Attention(layers.Layer):
     '''
     Custom Attention Layer
     '''
 
-    def __init__(self, **kwargs):
-        super(Attention, self).__init__(**kwargs)
-
-    def build(self, input_shape):
-        '''
-        trained parameter vector W: shape = (number of filters, 1)
-        '''
-
-        self.W = self.add_weight(name='attention_w',
-                                 shape=(input_shape[2], 1),
-                                 initializer='glorot_uniform',
-                                 trainable=True)
-        super(Attention, self).build(input_shape)
+    def __init__(self, input_size):
+        super(Attention, self).__init__()
+        self.dense = tf.keras.layers.Dense(units = input_size)
 
     def call(self, input):
         '''
@@ -49,8 +37,7 @@ class Attention(layers.Layer):
         :param input: output of the convolution activation layer, shape = (timesteps, number of kernel filters)
         :return: within layer attention output (gamma), shape = (number of kernel filters, 1)
         '''
-
-        input_for_alpha = tf.tensordot(input, self.W, [[2], [0]])
+        input_for_alpha = self.dense(input)
         alpha = tf.nn.softmax(tf.nn.tanh(input_for_alpha))
         gamma = tf.nn.relu(tf.matmul(input, alpha, transpose_a=True))
         return gamma
