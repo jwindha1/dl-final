@@ -65,18 +65,6 @@ class Model(tf.keras.Model):
 
         return output
 
-
-
-
-
-
-
-
-
-
-
-        return lj3
-
     def loss(self, logits, labels):
         """
         Calculates the model cross-entropy loss after one forward pass.

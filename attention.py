@@ -23,9 +23,10 @@ class Attention(layers.Layer):
     Custom Attention Layer
     '''
 
-    def __init__(self, input_size):
+
+    def __init__(self, output_size):
         super(Attention, self).__init__()
-        self.dense = tf.keras.layers.Dense(units = input_size)
+        self.dense = tf.keras.layers.Dense(units =output_size)
 
     def call(self, input):
         '''
