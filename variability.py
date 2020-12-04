@@ -33,7 +33,7 @@ def find_timestep_differences(indices):
     nn_list = [indices[i+1]-indices[i] for i,elt in enumerate(indices) if i!=len(indices)-1]
     #include 0 at end since last maxima doesn't have a timestep
     nn_list.append(0)
-    print(nn_list)
+    # print(nn_list)
     return nn_list
 
 
@@ -52,7 +52,7 @@ def calc_stress_hrv(timesteps, indices, data):
         else:
             stressful_peaks.append(0)
     
-    print(stressful_peaks)
+    # print(stressful_peaks)
     
     #now take binary labels and fill out original list the size of original BVP data
     labels = [0] * len(data)
