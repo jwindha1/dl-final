@@ -7,8 +7,9 @@ import random
 import math
 from attention import Attention
 
+WINDOW_SIZE = 20
 
-class Model(tf.keras.Model):
+class TCNModel(tf.keras.Model):
     def __init__(self):
         """
         This model class will contain the architecture for your CNN that
@@ -16,26 +17,25 @@ class Model(tf.keras.Model):
         will break the autograder. We have left in variables in the constructor
         for you to fill out, but you are welcome to change them if you'd like.
         """
-        super(Model, self).__init__()
+        super(TCNModel, self).__init__()
 
-        self.batch_size = 100  # Batch size for training/testing
-        self.loss_list = []  # Append losses to this list in training so you can visualize loss vs time in main
-        self.num_classes = 2  # Number of classes of objects
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)  # Stochastic Gradient Descent
+        self.batch_size = 64
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
-        self.conv1 = tf.keras.layers.Conv1D(filters =32, strides= 1, padding = "causal", dilation = 1)
-        self.att1= Attention(32)
-        self.conv2 = tf.keras.layers.Conv1D(filters=16, strides=1, padding="causal", dilation=2)
-        self.att1 = Attention(16)
-        self.conv3 = tf.keras.layers.Conv1D(filters=8, strides=1, padding="causal", dilation=4)
-        self.att1 = Attention(8)
-        self.conv4 = tf.keras.layers.Conv1D(filters=4, strides=1, padding="causal", dilation=8)
-        self.att1 = Attention(4)
-        self.conv5 = tf.keras.layers.Conv1D(filters=2, strides=1, padding="causal", dilation=16)
-        self.att1= Attention(2)
-        self.conv6 = tf.keras.layers.Conv1D(filters=1, strides=1, padding="causal", dilation=32)
-        self.acrross_attn =  Attention(1)
-        self.dense = tf.keras.layers.Dense(units = 1)
+        self.conv1 = tf.keras.layers.Conv1D(filters=32, strides=1, padding="causal", kernel_size=4, dilation_rate=1, input_shape=(WINDOW_SIZE, 1))
+        self.att1 = Attention(1)
+        self.conv2 = tf.keras.layers.Conv1D(filters=32, strides=1, padding="causal", kernel_size=4, dilation_rate=2)
+        self.att2 = Attention(1)
+        self.conv3 = tf.keras.layers.Conv1D(filters=32, strides=1, padding="causal", kernel_size=4, dilation_rate=4)
+        self.att3 = Attention(1)
+        self.conv4 = tf.keras.layers.Conv1D(filters=32, strides=1, padding="causal", kernel_size=4, dilation_rate=8)
+        self.att4 = Attention(1)
+        self.conv5 = tf.keras.layers.Conv1D(filters=32, strides=1, padding="causal", kernel_size=4, dilation_rate=16)
+        self.att5 = Attention(1)
+        self.conv6 = tf.keras.layers.Conv1D(filters=32, strides=1, padding="causal", kernel_size=4, dilation_rate=32)
+        self.att6 = Attention(1)
+        self.across_attn = Attention(1)
+        self.dense = tf.keras.layers.Dense(units=2)
 
 
     def call(self, inputs):
@@ -45,6 +45,7 @@ class Model(tf.keras.Model):
         :param is_testing: a boolean that should be set to True only when you're doing Part 2 of the assignment and this function is being called during testing
         :return: logits - a matrix of shape (num_inputs, num_classes); during training, it would be (batch_size, 2)
         """
+        inputs = tf.expand_dims(inputs, axis=-1)
         c1 = self.conv1(inputs)
         gamma1 = self.att1.call(c1)
         c2 = self.conv2(c1)
@@ -57,9 +58,13 @@ class Model(tf.keras.Model):
         gamma5 = self.att5.call(c5)
         c6 = self.conv6(c5)
         gamma6 = self.att6.call(c6)
-        within_attention  = tf.concat([gamma1, gamma2, gamma3, gamma4, gamma5, gamma6], axis = 0)
-        final_gamma = self.acrross_attn.call(within_attention)
-        output = self.dense(final_gamma)
+        print(f'at each layer:')
+        print(f'c1: {c1.shape}, c2: {c2.shape}, c3: {c3.shape}, c4: {c4.shape}, c5: {c5.shape}, c6: {c6.shape},')
+        print(f'gamma: {gamma1.shape}, gamma2: {gamma2.shape}, gamma3: {gamma3.shape}, gamma4: {gamma4.shape}, gamma5: {gamma5.shape}, gamma6: {gamma6.shape},')
+        within_attention  = tf.concat([gamma1, gamma2, gamma3, gamma4, gamma5, gamma6], axis=0)
+        final_gamma = self.across_attn.call(within_attention)
+        print(f'final: within attention {within_attention.shape}, gamma {final_gamma.shape}')
+        output = tf.squeeze(self.dense(final_gamma))
         return output
 
     def loss(self, logits, labels):
@@ -88,4 +93,3 @@ class Model(tf.keras.Model):
         """
         correct_predictions = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
         return tf.reduce_mean(tf.cast(correct_predictions, tf.float32))
-

@@ -1,10 +1,6 @@
 import numpy as np
 import argparse
-import mlflow
 import tensorflow as tf
-from sklearn.metrics import confusion_matrix, f1_score
-from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.utils import resample
 from datetime import datetime
 
 # heavy keras imports
@@ -41,7 +37,7 @@ class Attention(layers.Layer):
         input_for_alpha = self.dense(input)
         alpha = tf.nn.softmax(tf.nn.tanh(input_for_alpha))
         gamma = tf.nn.relu(tf.matmul(input, alpha, transpose_a=True))
-        return gamma
+        return tf.squeeze(gamma)
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0], input_shape[2], 1)
