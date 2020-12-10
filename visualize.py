@@ -17,8 +17,8 @@ with open('data.json') as data:
     upper = np.ma.masked_where(y > threshold, y)
 
     fig, ax = plt.subplots()
-    ax.plot(x, upper, color="#31D9BD", label="Stressed Labeling")
-    ax.plot(x, lower, color="#F03681", label="Non-Stressed Labeling")
+    ax.plot(x, upper, color="#31D9BD", label="Non-Stressed Labeling")
+    ax.plot(x, lower, color="#F03681", label="Stressed Labeling")
     
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles, labels, loc='best')
