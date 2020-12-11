@@ -12,10 +12,7 @@ WINDOW_SIZE = 20
 class TCNModel(tf.keras.Model):
     def __init__(self, learning_rate=0.005):
         """
-        This model class will contain the architecture for your CNN that
-        classifies images. Do not modify the constructor, as doing so
-        will break the autograder. We have left in variables in the constructor
-        for you to fill out, but you are welcome to change them if you'd like.
+        This model class will contain the architecture for our TCN
         """
         super(TCNModel, self).__init__()
 
@@ -41,8 +38,7 @@ class TCNModel(tf.keras.Model):
     def call(self, inputs):
         """
         Runs a forward pass on an input batch of images.
-        :param inputs: images, shape of (num_inputs, 32, 32, 3); during training, the shape is (batch_size, 32, 32, 3)
-        :param is_testing: a boolean that should be set to True only when you're doing Part 2 of the assignment and this function is being called during testing
+        :param inputs: images, shape of (num_inputs, 20)
         :return: logits - a matrix of shape (num_inputs, num_classes); during training, it would be (batch_size, 2)
         """
         inputs = tf.expand_dims(inputs, axis=-1)
